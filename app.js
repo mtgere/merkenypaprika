@@ -1,6 +1,6 @@
 // Formularios de preaviso: valida el email y lo envía al destino configurado.
 (function () {
-  var ENDPOINT = ''; // se completa al conectar la lista de emails
+  var ENDPOINT = 'https://script.google.com/macros/s/AKfycbwVZ_FP_RAkLZfPI_q5s_eM79WCV9BJEIf9EvCsuF6iq-uCYigrm_WqstnV2Uw4uctygA/exec'; // Apps Script → planilla «Merkén & Paprika · Preaviso (emails)»
   var RE = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
   function show(state) {
     document.querySelectorAll('.mp-formwrap').forEach(function (n) { n.hidden = state === 'ok'; });
