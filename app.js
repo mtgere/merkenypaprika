@@ -26,3 +26,43 @@
     });
   });
 })();
+
+// Barra fija: aparece al pasar el hero, se oculta cuando hay un formulario a la vista
+// y, en escritorio, se esconde al bajar y vuelve al subir.
+(function () {
+  var top = document.querySelector('.mp-sticky-top');
+  var bottom = document.querySelector('.mp-sticky-bottom');
+  var hero = document.getElementById('hero');
+  if (!top || !bottom || !hero || !('IntersectionObserver' in window)) return;
+  var pastHero = false, formsVisible = 0, goingUp = true, lastY = window.scrollY;
+  function done() { return !!document.querySelector('.mp-ok:not([hidden])'); }
+  function set(el, on) { el.classList.toggle('is-on', on); if (on) el.removeAttribute('inert'); else el.setAttribute('inert', ''); }
+  function update() {
+    var base = pastHero && formsVisible === 0 && !done();
+    set(top, base && goingUp);
+    set(bottom, base);
+  }
+  new IntersectionObserver(function (es) { pastHero = !es[0].isIntersecting && es[0].boundingClientRect.top < 0; update(); }).observe(hero);
+  var seen = new Map();
+  var fo = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { seen.set(e.target, e.isIntersecting); });
+    formsVisible = 0; seen.forEach(function (v) { if (v) formsVisible++; });
+    update();
+  }, { threshold: 0.2 });
+  document.querySelectorAll('.mp-formwrap, .mp-ok').forEach(function (n) { fo.observe(n.parentElement === document.body ? n : n); });
+  window.addEventListener('scroll', function () {
+    var y = window.scrollY;
+    if (Math.abs(y - lastY) > 6) { goingUp = y < lastY; lastY = y; update(); }
+  }, { passive: true });
+  var reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  document.querySelectorAll('.mp-go').forEach(function (a) {
+    a.addEventListener('click', function (e) {
+      var input = document.getElementById('email');
+      if (!input || done()) return;
+      e.preventDefault();
+      document.getElementById('hero').scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'start' });
+      setTimeout(function () { input.focus({ preventScroll: true }); }, reduce ? 0 : 500);
+    });
+  });
+  update();
+})();
